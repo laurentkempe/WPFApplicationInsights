@@ -1,4 +1,5 @@
 using System.Windows;
+using Serilog;
 
 namespace WPFApplicationInsights
 {
@@ -10,6 +11,16 @@ namespace WPFApplicationInsights
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        private void Log_OnClick(object sender, RoutedEventArgs e)
+        {
+            Log.Information("You entered {Text}", TextBox.Text);
         }
     }
 }
