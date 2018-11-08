@@ -1,5 +1,7 @@
+using System;
+using System.Configuration;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 using Serilog;
 
 namespace WPFApplicationInsights
@@ -20,24 +22,49 @@ namespace WPFApplicationInsights
 #else
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
-                .WriteTo.ApplicationInsights("TODO")
+                .WriteTo.ApplicationInsightsEvents(ConfigurationManager.AppSettings["ApplicationInsightsInstrumentationKey"])
                 .CreateLogger();
 #endif
 
-
             Exit += OnApp_Exit;
-            DispatcherUnhandledException += OnDispatcherUnhandledException;
+
+            SetupExceptionHandling();
+        }
+
+        private void SetupExceptionHandling()
+        {
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+                LogAndFlushUnhandledException((Exception)e.ExceptionObject, "AppDomain.CurrentDomain.UnhandledException");
+
+            DispatcherUnhandledException += (s, e) =>
+                LogUnhandledException(e.Exception, "Application.Current.DispatcherUnhandledException");
+
+            TaskScheduler.UnobservedTaskException += (s, e) =>
+                LogUnhandledException(e.Exception, "TaskScheduler.UnobservedTaskException");
+        }
+
+        private void LogAndFlushUnhandledException(Exception exception, string source)
+        {
+            LogUnhandledException(exception, source);
+            Log.CloseAndFlush();
+        }
+
+        private void LogUnhandledException(Exception exception, string source)
+        {
+            Log.Error(exception, source);
         }
 
         private static void OnApp_Exit(object sender, ExitEventArgs e)
         {
-            Log.CloseAndFlush();
-        }
-
-        private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
-        {
-            Log.Error(e.Exception, "DispatcherUnhandledException");
-            Log.CloseAndFlush();
+            try
+            {
+                Log.CloseAndFlush();
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+                throw;
+            }
         }
     }
 }

@@ -11,6 +11,7 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*" />
@@ -18,11 +19,15 @@
     </Grid.ColumnDefinitions>
     <Button Grid.Row="0"
             Grid.ColumnSpan="2"
-            Click="ButtonBase_OnClick">Crash</Button>
+            Click="ButtonBase_OnClick">Crash DispatcherUnhandledException</Button>
     <Button Grid.Row="1"
             Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Click="TaskScheduler_OnClick">Crash TaskScheduler</Button>
+    <Button Grid.Row="2"
+            Grid.Column="0"
             Click="Log_OnClick">Log</Button>
-    <TextBox Grid.Row="1"
+    <TextBox Grid.Row="2"
              Grid.Column="1"
              x:Name="TextBox"
              Text="Hello" />
